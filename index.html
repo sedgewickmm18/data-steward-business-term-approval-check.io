@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Data Steward – Business Term Approval Checks">
+    <meta name="author" content="">
+
+    <title>Data Steward – Business Term Approval Checks</title>
+
+    <!-- Reveal.js CSS from CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reset.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/theme/white.css" id="theme">
+
+    <!-- Theme used for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/plugin/highlight/monokai.css">
+
+    <style>
+        /* ── Design tokens ── */
+        :root {
+            --accent:      #3b82d4;
+            --accent2:     #7c5cd8;
+            --green:       #059669;
+            --orange:      #d97706;
+            --text:        #1f2328;
+            --text-light:  #57606a;
+            --border:      #e5e7eb;
+            --surface:     #f7f8fa;
+            --bg:          #ffffff;
+        }
+
+        /* ── Base typography ── */
+        .reveal { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; color: var(--text); }
+        .reveal h1, .reveal h2, .reveal h3, .reveal h4 { color: var(--text); font-weight: 700; }
+        .reveal h2  { font-size: 1.4em; border-bottom: 2px solid var(--accent); padding-bottom: 0.2em; margin-bottom: 0.5em; }
+        .reveal h3  { font-size: 1.05em; color: var(--accent); margin: 0 0 0.4em; }
+        .reveal p   { color: var(--text-light); }
+
+        /* ── Two-column grid ── */
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.6em;
+            align-items: start;
+        }
+
+        /* ── Check boxes ── */
+        .check-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75em 1em;
+            font-size: 0.56em;
+            line-height: 1.5;
+            color: var(--text);
+            height: 100%;
+            box-sizing: border-box;
+        }
+        .check-box.example {
+            background: #eef6ff;
+            border-color: #bfdbfe;
+        }
+        .check-box h3 {
+            font-size: 1em;
+            margin-bottom: 0.5em;
+        }
+        .check-box ul {
+            margin: 0.4em 0 0 1em;
+            padding: 0;
+        }
+        .check-box li {
+            margin-bottom: 0.3em;
+        }
+
+        /* ── Inline code / term labels ── */
+        .check-box code {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9em;
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 0.05em 0.35em;
+            border-radius: 3px;
+        }
+        .check-box .good { color: var(--green); font-weight: 600; }
+        .check-box .bad  { color: #dc2626;      font-weight: 600; }
+        .check-box .note { color: var(--text-light); font-style: italic; }
+
+        /* ── Slide label pill ── */
+        .slide-label {
+            display: inline-block;
+            font-size: 0.5em;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 20px;
+            padding: 0.15em 0.75em;
+            margin-bottom: 0.5em;
+        }
+
+        /* ── Column header bar ── */
+        .col-header {
+            font-size: 0.58em;
+            font-weight: 700;
+            color: var(--text-light);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.3em;
+            margin-bottom: 0.5em;
+        }
+
+        /* ── Divider line in example box ── */
+        .divider { border: none; border-top: 1px dashed var(--border); margin: 0.6em 0; }
+
+        /* ── Scrollable slide content ── */
+        .reveal .slides section {
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+<div class="reveal">
+    <div class="slides">
+
+        <!-- ============================================================
+             TITLE SLIDE
+             ============================================================ -->
+        <section id="title" style="text-align: center;">
+            <h2 style="border: none; font-size: 1.4em; margin-top: 0.6em;">
+                Reviewing a Business Term<br>for Publication
+            </h2>
+            <p style="font-size: 0.7em; color: var(--text-light); margin-top: 0.6em;">
+                Three checks a Data Steward should perform<br>
+                before approving or rejecting a proposed term
+            </p>
+            <aside class="notes">
+                Introduce the three quality gates: wording clarity, ontological fit, and data linkage.
+            </aside>
+        </section>
+
+        <!-- ============================================================
+             SLIDE 1 – Wording Check
+             ============================================================ -->
+        <section id="wording">
+            <div class="slide-label">Check 1 of 3</div>
+            <h2>Wording &amp; Clarity</h2>
+
+            <div class="grid-2col">
+
+                <!-- Left: explanatory text -->
+                <div>
+                    <div class="col-header">What to look for</div>
+                    <div class="check-box">
+                        <h3>Can a non-expert understand this?</h3>
+                        <ul>
+                            <li>Read the description as if you had no domain background. Does it make sense without additional context?</li>
+                            <li>Identify <strong>technical jargon</strong> that is not defined elsewhere in the glossary — each undefined term is a potential rejection reason.</li>
+                            <li>Check whether <strong>alternative names / synonyms</strong> are provided and whether they are commonly used across business units.</li>
+                            <li>Verify that the definition uses complete, grammatically correct sentences and does not rely on abbreviations without expansion.</li>
+                            <li>A good description answers: <em>What is it? What is it not? How is it measured or expressed?</em></li>
+                        </ul>
+                        <hr class="divider">
+                        <p class="note">Tip: paste the description into a prompt and ask a general-audience LLM to explain it back to you — if it struggles, reviewers will too.</p>
+                    </div>
+                </div>
+
+                <!-- Right: concrete example -->
+                <div>
+                    <div class="col-header">Example</div>
+                    <div class="check-box example">
+                        <h3>Term proposed: <code>Cap Rate</code></h3>
+
+                        <p class="bad">❌ Weak description</p>
+                        <p style="font-style: italic; margin: 0.3em 0 0.6em;">
+                            "The cap rate used in RE valuation models for NOI discounting."
+                        </p>
+                        <ul>
+                            <li>Uses unexpanded abbreviations: <em>RE</em>, <em>NOI</em></li>
+                            <li>Assumes reader knows "valuation models" means DCF analysis</li>
+                            <li>No alternative wordings; no unit mentioned (percentage? decimal?)</li>
+                        </ul>
+
+                        <hr class="divider">
+
+                        <p class="good">✔ Improved description</p>
+                        <p style="font-style: italic; margin: 0.3em 0 0.6em;">
+                            "Capitalisation Rate (Cap Rate): the ratio of a property's annual Net Operating Income (NOI) to its current market value, expressed as a percentage. Used to estimate the expected return on a real-estate investment."
+                        </p>
+                        <ul>
+                            <li>Abbreviations expanded on first use</li>
+                            <li>Alternative name listed: <em>Capitalisation Rate</em></li>
+                            <li>Unit stated: percentage</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="notes">
+                Focus on the reader's perspective. The approver is often not the domain expert —
+                if the description requires specialist knowledge to parse, it should be sent back for amendment.
+            </aside>
+        </section>
+
+        <!-- ============================================================
+             SLIDE 2 – Ontology Check
+             ============================================================ -->
+        <section id="ontology">
+            <div class="slide-label">Check 2 of 3</div>
+            <h2>Ontological Fit &amp; Conflicts</h2>
+
+            <div class="grid-2col">
+
+                <!-- Left: explanatory text -->
+                <div>
+                    <div class="col-header">What to look for</div>
+                    <div class="check-box">
+                        <h3>Does the term belong in its category?</h3>
+                        <ul>
+                            <li>Treat the assigned category as a node in an ontology. Ask: <em>Is this term a specialisation of the category concept, or does it belong somewhere else?</em></li>
+                            <li>Use the upcoming <strong>context service</strong> to surface related terms and parent/sibling concepts for the assigned category.</li>
+                            <li>Scan for <strong>near-duplicates</strong> already published in the same category — different names for the same concept create ambiguity in downstream systems (e.g. <code>Client Id</code> vs <code>Customer Number</code>).</li>
+                            <li>Check for <strong>clashes</strong>: terms in the same category whose definitions overlap significantly but are given different names without a clear distinction.</li>
+                            <li>If overlap exists, decide: merge, alias, or disambiguate with a scope qualifier (e.g. <em>Customer Number (CRM)</em> vs <em>Customer Number (ERP)</em>).</li>
+                        </ul>
+                        <hr class="divider">
+                        <p class="note">Tip: a context-service query on the category can return the 5–10 most semantically similar existing terms — review these before approving.</p>
+                    </div>
+                </div>
+
+                <!-- Right: concrete example -->
+                <div>
+                    <div class="col-header">Example</div>
+                    <div class="check-box example">
+                        <h3>Category: <code>Party Identifiers</code></h3>
+
+                        <p style="margin: 0.3em 0 0.5em;">Existing published terms in this category:</p>
+                        <ul>
+                            <li><code>Customer Number</code> — "Unique numeric identifier assigned to a customer in the CRM system."</li>
+                            <li><code>Counterparty ID</code> — "Identifier for external trading counterparties."</li>
+                        </ul>
+
+                        <hr class="divider">
+
+                        <p style="margin: 0.3em 0 0.5em;">New term proposed: <code>Client Id</code></p>
+                        <p class="bad">⚠ Potential conflict</p>
+                        <ul>
+                            <li>Definition reads: "The ID of a client as stored in core banking."</li>
+                            <li>"Client" ≈ "Customer" in common usage — different source system, but same real-world concept?</li>
+                            <li>Action: request submitter to clarify whether this is a <em>distinct concept</em> or an alias for <code>Customer Number</code> scoped to core banking.</li>
+                        </ul>
+
+                        <hr class="divider">
+
+                        <p class="good">✔ Resolution options</p>
+                        <ul>
+                            <li>Add as alias: <code>Client Id</code> → synonym of <code>Customer Number</code></li>
+                            <li>Publish as scoped variant: <code>Customer Number (Core Banking)</code></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="notes">
+                The context service (semantic search over the glossary) is the key tool here.
+                Even without it, a manual scan of the target category for similar terms is essential.
+            </aside>
+        </section>
+
+        <!-- ============================================================
+             SLIDE 3 – Existing Data Check
+             ============================================================ -->
+        <section id="data">
+            <div class="slide-label">Check 3 of 3</div>
+            <h2>Linkage to Existing Data</h2>
+
+            <div class="grid-2col">
+
+                <!-- Left: explanatory text -->
+                <div>
+                    <div class="col-header">What to look for</div>
+                    <div class="check-box">
+                        <h3>Where does this term live in the data landscape?</h3>
+                        <ul>
+                            <li>Identify the <strong>databases, tables, and columns</strong> that carry the values described by this term. Without at least one known data location, the term floats unanchored — hard to adopt in practice.</li>
+                            <li>Check whether those columns are already tagged with a <em>different</em> business term — that reveals existing naming conflicts or redundant terms at the data level.</li>
+                            <li>Verify <strong>data type and format</strong> consistency: if the term says "expressed as a percentage", do the mapped columns store <code>0.05</code> or <code>5</code>? Discrepancies must be documented.</li>
+                            <li>Look for columns with similar names across multiple schemas — these may be the same concept stored differently, which supports the case for a shared business term.</li>
+                            <li>If no data mapping exists yet, note it as a gap and flag for the submitter to supply at least one reference source.</li>
+                        </ul>
+                        <hr class="divider">
+                        <p class="note">Tip: a data-lineage or metadata search query on the term name (and its synonyms) across catalogued sources is the fastest starting point.</p>
+                    </div>
+                </div>
+
+                <!-- Right: concrete example -->
+                <div>
+                    <div class="col-header">Example</div>
+                    <div class="check-box example">
+                        <h3>Term: <code>Net Operating Income</code></h3>
+
+                        <p style="margin: 0.3em 0 0.5em;">Metadata search results:</p>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.85em;">
+                            <thead>
+                                <tr style="background: #dbeafe;">
+                                    <th style="text-align: left; padding: 0.25em 0.5em; border: 1px solid #bfdbfe;">Database</th>
+                                    <th style="text-align: left; padding: 0.25em 0.5em; border: 1px solid #bfdbfe;">Table</th>
+                                    <th style="text-align: left; padding: 0.25em 0.5em; border: 1px solid #bfdbfe;">Column</th>
+                                    <th style="text-align: left; padding: 0.25em 0.5em; border: 1px solid #bfdbfe;">Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><code>re_core</code></td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><code>property_financials</code></td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><code>noi_annual</code></td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;">DECIMAL(18,2)</td>
+                                </tr>
+                                <tr style="background: #f7f8fa;">
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><code>risk_dw</code></td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><code>asset_valuation</code></td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><code>net_op_income</code></td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;">FLOAT</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><code>reporting</code></td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><code>kpi_summary</code></td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><code>NOI</code></td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;">VARCHAR(20)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <hr class="divider">
+
+                        <p class="bad">⚠ Issues to flag</p>
+                        <ul>
+                            <li><code>reporting.kpi_summary.NOI</code> stores the value as <code>VARCHAR</code> — inconsistent with the other two numeric columns; possible formatted string.</li>
+                            <li>Two different column names (<code>noi_annual</code>, <code>net_op_income</code>) already exist — the new term should document both as known source-column mappings.</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="notes">
+                Data mapping transforms a glossary from a documentation exercise into something
+                operationally useful. Encourage submitters to supply at least one source reference.
+            </aside>
+        </section>
+
+        <!-- ============================================================
+             SUMMARY SLIDE
+             ============================================================ -->
+        <section id="summary" style="text-align: center;">
+            <h2 style="border: none;">Three Checks at a Glance</h2>
+            <div style="display: flex; justify-content: center; gap: 1.4em; margin-top: 1em; font-size: 0.58em;">
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1em 1.3em; max-width: 200px; text-align: left;">
+                    <div style="font-size: 1.6em; margin-bottom: 0.3em;">✍</div>
+                    <strong>1. Wording</strong>
+                    <p style="color: var(--text-light); margin: 0.3em 0 0;">Can a non-SME understand the description? Are abbreviations expanded, synonyms listed, units stated?</p>
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1em 1.3em; max-width: 200px; text-align: left;">
+                    <div style="font-size: 1.6em; margin-bottom: 0.3em;">🗂</div>
+                    <strong>2. Ontology</strong>
+                    <p style="color: var(--text-light); margin: 0.3em 0 0;">Does the term fit its category? Are there near-duplicate or clashing terms already published?</p>
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1em 1.3em; max-width: 200px; text-align: left;">
+                    <div style="font-size: 1.6em; margin-bottom: 0.3em;">🗄</div>
+                    <strong>3. Data Linkage</strong>
+                    <p style="color: var(--text-light); margin: 0.3em 0 0;">Which DB/table/column carries this data? Are types consistent? Are any columns already tagged with a conflicting term?</p>
+                </div>
+            </div>
+            <aside class="notes">
+                Quick recap of all three gates before opening for questions or live demo.
+            </aside>
+        </section>
+
+        <!-- ============================================================
+             SLIDE 4 – Agentic Skill
+             ============================================================ -->
+        <section id="agentic-skill">
+            <div class="slide-label">Automation</div>
+            <h2>Agentic Skill: Business Term Evaluation</h2>
+
+            <div class="grid-2col">
+
+                <!-- Left: skill overview -->
+                <div>
+                    <div class="col-header">Automated Evaluation Workflow</div>
+                    <div class="check-box">
+                        <h3>What the skill does</h3>
+                        <ul>
+                            <li><strong>Phase 0:</strong> Determines artifact status (DRAFT vs PUBLISHED) to use appropriate tools</li>
+                            <li><strong>Phase 1:</strong> Performs wording quality check — assesses clarity, detects jargon, suggests improvements</li>
+                            <li><strong>Phase 2:</strong> Conducts ontology check — analyzes category fit, detects term clashes with existing artifacts</li>
+                            <li><strong>Phase 3:</strong> Generates consolidated evaluation report with actionable recommendations</li>
+                        </ul>
+                        <hr class="divider">
+                        <h3>MCP Tools in action</h3>
+                        <ul>
+                            <li><code>list_draft_artifacts</code> — Discovers all draft artifacts pending approval with their names, IDs, types, and workflow status</li>
+                            <li><code>get_artifact_details</code> — Retrieves comprehensive details for DRAFT artifacts including descriptions, relationships, stewards, and version history</li>
+                            <li><code>search_governance_artifacts</code> — Checks if artifact is PUBLISHED (when not found in drafts) and detects potential clashes with existing artifacts</li>
+                        </ul>
+                        <p class="note" style="margin-top: 0.5em;">The skill supports evaluation of both draft artifacts (for approval decisions) and published artifacts (for quality review).</p>
+                    </div>
+                </div>
+
+                <!-- Right: activation & benefits -->
+                <div>
+                    <div class="col-header">How to use it</div>
+                    <div class="check-box example">
+                        <h3>Activation phrases</h3>
+                        <ul>
+                            <li>"Should I approve this business term?"</li>
+                            <li>"Evaluate [artifact name]"</li>
+                            <li>"Review [artifact] for approval"</li>
+                            <li>"What do I need to know about [artifact]?"</li>
+                            <li>"Check if [artifact] is good"</li>
+                        </ul>
+
+                        <hr class="divider">
+
+                        <h3>Key benefits</h3>
+                        <ul>
+                            <li>Consistent evaluation criteria across all stewards</li>
+                            <li>Faster review cycle — automated checks in seconds</li>
+                            <li>Comprehensive analysis — catches issues humans might miss</li>
+                            <li>Actionable recommendations — clear approve/reject/change guidance</li>
+                            <li>Supports both business terms and data classes</li>
+                        </ul>
+
+                        <hr class="divider">
+
+                        <p class="note">The skill orchestrates multiple MCP tools to retrieve artifact data, analyze relationships, and provide intelligent evaluation — all through natural language interaction.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="notes">
+                The agentic skill automates the three-check workflow presented earlier,
+                using MCP tools to access governance data and LLM analysis to provide
+                data stewards with instant, comprehensive evaluation reports.
+            </aside>
+        </section>
+
+        <!-- ============================================================
+             MIGRATION TITLE SLIDE
+             ============================================================ -->
+        <section id="migration-title" style="text-align: center;">
+            <div class="slide-label" style="background: var(--accent2);">Large-Scale Migration</div>
+            <h2 style="border: none; font-size: 1.4em; margin-top: 0.5em;">
+                Migrating a Large Business Glossary
+            </h2>
+            <p style="font-size: 0.72em; color: var(--text-light); margin-top: 0.5em; max-width: 680px; margin-left: auto; margin-right: auto;">
+                How to reduce <strong style="color: var(--text);">1,000+ overlapping business terms</strong> to a clean,
+                canonical glossary — by culling duplicates, standardising definitions, aligning to the
+                target ontology, and locking the gate against future drift.
+            </p>
+            <div style="display: flex; justify-content: center; gap: 1em; margin-top: 1.2em; font-size: 0.52em;">
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.7em 1.1em; text-align: left; max-width: 160px;">
+                    <strong style="color: var(--accent2);">Phase 1</strong><br>Inventory &amp; Assessment
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.7em 1.1em; text-align: left; max-width: 160px;">
+                    <strong style="color: var(--accent2);">Phase 2</strong><br>Deduplication &amp; Clustering
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.7em 1.1em; text-align: left; max-width: 160px;">
+                    <strong style="color: var(--accent2);">Phase 3</strong><br>Definition Standardisation
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.7em 1.1em; text-align: left; max-width: 160px;">
+                    <strong style="color: var(--accent2);">Phase 4</strong><br>Ontological Alignment
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.7em 1.1em; text-align: left; max-width: 160px;">
+                    <strong style="color: var(--accent2);">Phase 5</strong><br>Governance &amp; Load
+                </div>
+            </div>
+            <aside class="notes">
+                Set the stage: the problem is a sprawling legacy glossary with 1,000+ terms accumulated over years —
+                many overlapping, poorly defined, or misclassified. The five-phase roadmap collapses these into a
+                lean, authoritative set and prevents the problem from recurring.
+            </aside>
+        </section>
+
+        <!-- ============================================================
+             MIGRATION PHASE 1 – Inventory and Assessment
+             ============================================================ -->
+        <section id="migration-phase1">
+            <div class="slide-label" style="background: var(--accent2);">Phase 1 of 5</div>
+            <h2>Inventory &amp; Assessment</h2>
+
+            <div class="grid-2col">
+
+                <!-- Left: sub-steps -->
+                <div>
+                    <div class="col-header">Steps</div>
+                    <div class="check-box">
+                        <h3>Profile the current state of the glossary</h3>
+                        <ul>
+                            <li><strong>Extract all terms:</strong> Export every business term, definition, owner, and metadata tag into a unified staging area — a single flat view of what exists.</li>
+                            <li><strong>Profile data quality:</strong> Identify completely empty definitions, missing steward assignments, and formatting inconsistencies (mixed casing, punctuation styles, stray HTML).</li>
+                            <li><strong>Baseline count:</strong> Record the raw term count per domain/category so you can measure reduction progress across the following phases.</li>
+                        </ul>
+                        <hr class="divider">
+                        <p class="note">Tip: export to a spreadsheet or database table so every subsequent phase can annotate the same rows with status flags (KEEP, MERGE, RETIRE).</p>
+                    </div>
+                </div>
+
+                <!-- Right: example -->
+                <div>
+                    <div class="col-header">Example</div>
+                    <div class="check-box example">
+                        <h3>Glossary snapshot — <code>Customer</code> domain</h3>
+                        <table style="width:100%; border-collapse:collapse; font-size:0.85em;">
+                            <thead>
+                                <tr style="background:#dbeafe;">
+                                    <th style="text-align:left;padding:0.25em 0.4em;border:1px solid #bfdbfe;">Term</th>
+                                    <th style="text-align:left;padding:0.25em 0.4em;border:1px solid #bfdbfe;">Owner</th>
+                                    <th style="text-align:left;padding:0.25em 0.4em;border:1px solid #bfdbfe;">Definition</th>
+                                    <th style="text-align:left;padding:0.25em 0.4em;border:1px solid #bfdbfe;">Flag</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><code>Customer ID</code></td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;">CRM Team</td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;">Unique identifier for a customer.</td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><span class="good">OK</span></td>
+                                </tr>
+                                <tr style="background:#f7f8fa;">
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><code>Client_ID</code></td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><span class="bad">—</span></td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><span class="bad">(empty)</span></td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><span class="bad">No owner, no def</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><code>Cust. Number</code></td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;">Finance</td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;">Customer number in ERP.</td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><span class="note">Possible dup</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <hr class="divider">
+                        <p><strong>Raw count, Customer domain: 347 terms</strong></p>
+                        <p class="note">Quality flags at this stage: 42 empty definitions · 61 missing owners · 18 formatting issues</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="notes">
+                The goal here is visibility, not decisions. Avoid the temptation to start merging in Phase 1 —
+                just get a complete, annotated export so later phases can work systematically.
+            </aside>
+        </section>
+
+        <!-- ============================================================
+             MIGRATION PHASE 2 – Hybrid Deduplication & Semantic Clustering
+             ============================================================ -->
+        <section id="migration-phase2">
+            <div class="slide-label" style="background: var(--accent2);">Phase 2 of 5</div>
+            <h2>Hybrid Deduplication &amp; Semantic Clustering</h2>
+
+            <div class="grid-2col">
+
+                <!-- Left: sub-steps -->
+                <div>
+                    <div class="col-header">Steps</div>
+                    <div class="check-box">
+                        <h3>Collapse duplicates at scale — without reviewing every pair</h3>
+                        <ul>
+                            <li><strong>Fast Filtering:</strong> Pre-screen terms into broad candidate pools (by category, first token, or n-gram hash) so comparisons happen only within plausible clusters — not across all 1,000+ pairs.</li>
+                            <li><strong>Lexical Similarity:</strong> Flag naming variations, typos, and convention mismatches (e.g. <code>Client ID</code> vs <code>Client_ID</code> vs <code>ClientId</code>).</li>
+                            <li><strong>Semantic AI Matching:</strong> Use embedding-based similarity to surface conceptually identical terms with different names (e.g. <code>Vendor</code> ≈ <code>Supplier</code>).</li>
+                            <li><strong>Smart Grouping:</strong> Form synonym-candidate clusters without forcing rigid rules — let the model propose groupings for human review.</li>
+                            <li><strong>Streamlined Review:</strong> Auto-merge high-confidence duplicates; route borderline cases to Data Stewards. Confirmed duplicates become a canonical preferred term + synonym aliases.</li>
+                        </ul>
+                        <hr class="divider">
+                        <p class="note">Target: reduce the raw term count by 40–70 % before touching definitions.</p>
+                    </div>
+                </div>
+
+                <!-- Right: example -->
+                <div>
+                    <div class="col-header">Example — cluster discovered by AI</div>
+                    <div class="check-box example">
+                        <h3>Synonym cluster: <code>Vendor</code></h3>
+                        <table style="width:100%; border-collapse:collapse; font-size:0.85em;">
+                            <thead>
+                                <tr style="background:#dbeafe;">
+                                    <th style="text-align:left;padding:0.25em 0.4em;border:1px solid #bfdbfe;">Term</th>
+                                    <th style="text-align:left;padding:0.25em 0.4em;border:1px solid #bfdbfe;">Sim.</th>
+                                    <th style="text-align:left;padding:0.25em 0.4em;border:1px solid #bfdbfe;">Decision</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><code>Vendor</code></td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;">—</td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><span class="good">✔ Canonical term</span></td>
+                                </tr>
+                                <tr style="background:#f7f8fa;">
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><code>Supplier</code></td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;">0.94</td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><span class="good">✔ Auto-merged → alias</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><code>External Provider</code></td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;">0.81</td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><span class="note">⚑ Route to steward</span></td>
+                                </tr>
+                                <tr style="background:#f7f8fa;">
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><code>Third-Party Seller</code></td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;">0.76</td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><span class="note">⚑ Route to steward</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <hr class="divider">
+                        <p class="good">Result: 4 terms → 1 canonical + 1 alias + 2 for human review</p>
+                        <p class="note">Across all clusters, 347 Customer-domain terms reduced to ~130 after Phase 2.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="notes">
+                The key insight is pre-screening into pools. Comparing 1,000 terms pairwise = 500,000 comparisons;
+                comparing within 50 pools of 20 terms = 9,500 — a 98 % reduction. Semantic embeddings then catch
+                the conceptual duplicates that lexical matching misses.
+            </aside>
+        </section>
+
+        <!-- ============================================================
+             MIGRATION PHASE 3 – Clarity and Definition Standardisation
+             ============================================================ -->
+        <section id="migration-phase3">
+            <div class="slide-label" style="background: var(--accent2);">Phase 3 of 5</div>
+            <h2>Clarity &amp; Definition Standardisation</h2>
+
+            <div class="grid-2col">
+
+                <!-- Left: sub-steps -->
+                <div>
+                    <div class="col-header">Steps</div>
+                    <div class="check-box">
+                        <h3>Make every surviving term business-readable</h3>
+                        <ul>
+                            <li><strong>Apply standard templates:</strong> Enforce an ISO 11179-style structure — a definition must state <em>what</em> the term is, not just <em>how</em> it is used. Include: concept type, distinguishing characteristics, units or format.</li>
+                            <li><strong>Automate quality checks:</strong> Flag definitions that are too short (&lt; 10 words), circular (<em>"Client ID is the ID of a client"</em>), or contain unexpanded acronyms.</li>
+                            <li><strong>Assign domain experts:</strong> Route flagged terms to the relevant Data Steward or SME for rapid rewriting — batch by domain to minimise back-and-forth.</li>
+                        </ul>
+                        <hr class="divider">
+                        <p class="note">Tip: run automated checks in a CI-like pipeline so no term can advance to Phase 4 until it passes all quality gates.</p>
+                    </div>
+                </div>
+
+                <!-- Right: example -->
+                <div>
+                    <div class="col-header">Example — definition rewrite</div>
+                    <div class="check-box example">
+                        <h3>Term: <code>Vendor</code> (canonical)</h3>
+
+                        <p class="bad">❌ Before (circular, no context)</p>
+                        <p style="font-style:italic;margin:0.3em 0 0.6em;">"Vendor ID is the ID used to identify a vendor."</p>
+                        <ul>
+                            <li>Circular: defines the term with itself</li>
+                            <li>No type information (numeric? alphanumeric?)</li>
+                            <li>No scope (which system issues the ID?)</li>
+                        </ul>
+
+                        <hr class="divider">
+
+                        <p class="good">✔ After (ISO 11179-style)</p>
+                        <p style="font-style:italic;margin:0.3em 0 0.6em;">"A legal entity or individual that supplies goods or services to the organisation under a contractual agreement. Identified by a unique alphanumeric Vendor ID assigned at contract registration. Synonyms: Supplier, External Provider."</p>
+                        <ul>
+                            <li>States <em>what</em> a vendor is (concept type + distinguishing property)</li>
+                            <li>Mentions identifier format and lifecycle event</li>
+                            <li>Captures synonyms surfaced in Phase 2</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="notes">
+                ISO 11179 is the international standard for metadata registries. Even a lightweight version —
+                concept type + key property + unit/format — dramatically improves downstream usability.
+                Automated checks remove the burden of manual triage from stewards.
+            </aside>
+        </section>
+
+        <!-- ============================================================
+             MIGRATION PHASE 4 – Ontological Alignment
+             ============================================================ -->
+        <section id="migration-phase4">
+            <div class="slide-label" style="background: var(--accent2);">Phase 4 of 5</div>
+            <h2>Ontological Alignment</h2>
+
+            <div class="grid-2col">
+
+                <!-- Left: sub-steps -->
+                <div>
+                    <div class="col-header">Steps</div>
+                    <div class="check-box">
+                        <h3>Fit the cleaned terms into the target structure</h3>
+                        <ul>
+                            <li><strong>Map to top-level concepts:</strong> Assign each business term to a core ontological class (e.g. <code>Customer Account</code> maps to the class <em>Financial Account</em>).</li>
+                            <li><strong>Define relationships:</strong> Establish semantic links using predicate logic — <code>isA</code>, <code>partOf</code>, <code>hasProperty</code> — to make the ontology machine-traversable.</li>
+                            <li><strong>Validate logic:</strong> Run a semantic reasoner to detect contradictions — e.g. a term classified both as a <em>Person</em> and an <em>Organisation</em> — before loading into the production catalog.</li>
+                        </ul>
+                        <hr class="divider">
+                        <p class="note">Tip: validate in a sandbox ontology first. Logical contradictions are much cheaper to fix before the terms are published and linked to data assets.</p>
+                    </div>
+                </div>
+
+                <!-- Right: example -->
+                <div>
+                    <div class="col-header">Example — relationship mapping</div>
+                    <div class="check-box example">
+                        <h3>Terms mapped in the <code>Party</code> ontology class</h3>
+
+                        <table style="width:100%; border-collapse:collapse; font-size:0.85em;">
+                            <thead>
+                                <tr style="background:#dbeafe;">
+                                    <th style="text-align:left;padding:0.25em 0.4em;border:1px solid #bfdbfe;">Term</th>
+                                    <th style="text-align:left;padding:0.25em 0.4em;border:1px solid #bfdbfe;">Class</th>
+                                    <th style="text-align:left;padding:0.25em 0.4em;border:1px solid #bfdbfe;">Predicate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><code>Vendor</code></td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;">Party</td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><code>isA</code> LegalEntity</td>
+                                </tr>
+                                <tr style="background:#f7f8fa;">
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><code>Vendor ID</code></td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;">Identifier</td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><code>hasProperty</code> Vendor</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><code>Purchase Order</code></td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;">Agreement</td>
+                                    <td style="padding:0.2em 0.4em;border:1px solid #e5e7eb;"><code>partOf</code> Vendor</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <hr class="divider">
+
+                        <p class="bad">⚠ Reasoner flag caught during validation</p>
+                        <ul>
+                            <li><code>Contractor</code> was classified as both <em>Person</em> and <em>Organisation</em> — contradiction resolved by splitting into <code>Individual Contractor</code> and <code>Contractor Company</code>.</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="notes">
+                Ontological alignment turns a flat list of terms into a graph — making it possible for catalog
+                tools, search engines, and AI assistants to traverse and reason over the glossary rather than
+                just keyword-matching it.
+            </aside>
+        </section>
+
+        <!-- ============================================================
+             MIGRATION PHASE 5 – Governance and Load
+             ============================================================ -->
+        <section id="migration-phase5">
+            <div class="slide-label" style="background: var(--accent2);">Phase 5 of 5</div>
+            <h2>Governance &amp; Load — Lock the Gate</h2>
+
+            <div class="grid-2col">
+
+                <!-- Left: sub-steps -->
+                <div>
+                    <div class="col-header">Steps</div>
+                    <div class="check-box">
+                        <h3>Transition to production and prevent future drift</h3>
+                        <ul>
+                            <li><strong>Conduct a final review:</strong> Use a governed workflow to obtain formal sign-off from business stakeholders before any term goes live.</li>
+                            <li><strong>Load into target system:</strong> Migrate the canonical terms into your data catalog or ontology management tool, preserving synonym mappings and relationship links from Phase 4.</li>
+                            <li><strong>Lock the gate:</strong> Enforce strict validation rules on new term creation — no new term is published without passing the three quality gates (wording, ontology fit, data linkage) and receiving at least one steward approval.</li>
+                        </ul>
+                        <hr class="divider">
+                        <p class="note">The gate is only as strong as its enforcement. Automating the approval workflow removes the bottleneck and ensures every new term is evaluated consistently.</p>
+                    </div>
+                </div>
+
+                <!-- Right: approval workflow example -->
+                <div>
+                    <div class="col-header">Solution — Data Intelligence Approval Workflow</div>
+                    <div class="check-box example">
+                        <h3>Built-in review &amp; approval template</h3>
+                        <p style="margin:0.3em 0 0.5em;">The <strong>Data Intelligence workflow</strong> ships with a ready-made <em>Business Term Approval</em> template that enforces the gate automatically:</p>
+                        <ul>
+                            <li><strong>Submission:</strong> Author submits a draft term — the workflow triggers immediately, routing it to the assigned Data Steward queue.</li>
+                            <li><strong>Automated pre-checks:</strong> The agentic skill runs the three checks (wording · ontology · data linkage) and attaches a quality report to the task.</li>
+                            <li><strong>Steward review:</strong> The steward sees the report, the proposed term, and any flagged issues — one-click <span class="good">Approve</span> or <span class="bad">Reject with comment</span>.</li>
+                            <li><strong>Publication gate:</strong> Only approved terms transition to <code>PUBLISHED</code> status; rejected terms return to the author with the steward's feedback attached.</li>
+                            <li><strong>Audit trail:</strong> Every decision, comment, and version change is logged — satisfying governance and regulatory requirements out of the box.</li>
+                        </ul>
+                        <hr class="divider">
+                        <p class="good">✔ No custom build required — configure the template, assign stewards, and the gate is live.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="notes">
+                The approval/review workflow template is the operationalisation of "lock the gate".
+                Without a mandatory workflow, the gate exists only on paper — authors bypass it under time pressure
+                and the glossary gradually drifts back to its original bloated state.
+            </aside>
+        </section>
+
+    </div><!-- /.slides -->
+</div><!-- /.reveal -->
+
+<!-- Reveal.js JavaScript from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/plugin/markdown/markdown.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/plugin/zoom/zoom.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/plugin/search/search.js"></script>
+
+<script>
+    Reveal.initialize({
+        width: "100%",
+        height: "100%",
+        margin: 0.04,
+
+        // Allow slides to scroll when content overflows the viewport
+        scrollActivationWidth: null,
+
+        controls: true,
+        controlsTutorial: true,
+        controlsLayout: 'bottom-right',
+        progress: true,
+        slideNumber: 'c/t',
+        hash: true,
+        history: true,
+        keyboard: true,
+        overview: true,
+        center: true,
+        touch: true,
+        loop: false,
+        rtl: false,
+        navigationMode: 'default',
+        shuffle: false,
+        fragments: true,
+        fragmentInURL: true,
+        embedded: false,
+        help: true,
+        showNotes: false,
+        autoPlayMedia: null,
+        autoSlide: 0,
+        autoSlideStoppable: true,
+        mouseWheel: false,
+        hideInactiveCursor: true,
+        hideCursorTime: 5000,
+        hideAddressBar: true,
+        previewLinks: false,
+        transition: 'slide',
+        transitionSpeed: 'default',
+        backgroundTransition: 'fade',
+        viewDistance: 3,
+        mobileViewDistance: 2,
+        parallaxBackgroundImage: '',
+        parallaxBackgroundSize: '',
+        display: 'block',
+        pdfMaxPagesPerSlide: 1,
+        pdfSeparateFragments: true,
+
+        plugins: [
+            RevealMarkdown,
+            RevealHighlight,
+            RevealNotes,
+            RevealZoom,
+            RevealSearch
+        ]
+    });
+</script>
+</body>
+</html>
