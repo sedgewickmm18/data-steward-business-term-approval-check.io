@@ -115,6 +115,30 @@
         /* ── Divider line in example box ── */
         .divider { border: none; border-top: 1px dashed var(--border); margin: 0.6em 0; }
 
+        /* ── Compact check-box: ~10% smaller, tighter rhythm ── */
+        .check-box.compact {
+            font-size: 0.50em;
+            line-height: 1.4;
+        }
+        .check-box.compact li {
+            margin-bottom: 0.15em;
+        }
+        .check-box.compact h3 {
+            margin-bottom: 0.35em;
+        }
+
+        /* ── Tight check-box: for very dense slides ── */
+        .check-box.tight {
+            font-size: 0.47em;
+            line-height: 1.35;
+        }
+        .check-box.tight li {
+            margin-bottom: 0.12em;
+        }
+        .check-box.tight h3 {
+            margin-bottom: 0.3em;
+        }
+
         /* ── Scrollable slide content ── */
         .reveal .slides section {
             overflow-y: auto;
@@ -235,7 +259,7 @@
                 <!-- Right: concrete example -->
                 <div>
                     <div class="col-header">Example</div>
-                    <div class="check-box example">
+                    <div class="check-box example compact">
                         <h3>Category: <code>Party Identifiers</code></h3>
 
                         <p style="margin: 0.3em 0 0.5em;">Existing published terms in this category:</p>
@@ -244,9 +268,9 @@
                             <li><code>Counterparty ID</code> — "Identifier for external trading counterparties."</li>
                         </ul>
 
-                        <hr class="divider">
+                        <hr class="divider" style="margin: 0.3em 0;">
 
-                        <p style="margin: 0.3em 0 0.5em;">New term proposed: <code>Client Id</code></p>
+                        <p style="margin: 0.3em 0 0.4em;">New term proposed: <code>Client Id</code></p>
                         <p class="bad">⚠ Potential conflict</p>
                         <ul>
                             <li>Definition reads: "The ID of a client as stored in core banking."</li>
@@ -254,7 +278,7 @@
                             <li>Action: request submitter to clarify whether this is a <em>distinct concept</em> or an alias for <code>Customer Number</code> scoped to core banking.</li>
                         </ul>
 
-                        <hr class="divider">
+                        <hr class="divider" style="margin: 0.3em 0;">
 
                         <p class="good">✔ Resolution options</p>
                         <ul>
@@ -284,7 +308,7 @@
                 <!-- Left: explanatory text -->
                 <div>
                     <div class="col-header">What to look for</div>
-                    <div class="check-box">
+                    <div class="check-box compact">
                         <h3>Where does this term live in the data landscape?</h3>
                         <ul>
                             <li>Identify the <strong>databases, tables, and columns</strong> that carry the values described by this term. Without at least one known data location, the term floats unanchored — hard to adopt in practice.</li>
@@ -293,7 +317,7 @@
                             <li>Look for columns with similar names across multiple schemas — these may be the same concept stored differently, which supports the case for a shared business term.</li>
                             <li>If no data mapping exists yet, note it as a gap and flag for the submitter to supply at least one reference source.</li>
                         </ul>
-                        <hr class="divider">
+                        <hr class="divider" style="margin: 0.3em 0;">
                         <p class="note">Tip: a data-lineage or metadata search query on the term name (and its synonyms) across catalogued sources is the fastest starting point.</p>
                     </div>
                 </div>
@@ -386,14 +410,14 @@
              ============================================================ -->
         <section id="agentic-skill">
             <div class="slide-label">Automation</div>
-            <h2>Agentic Skill: Business Term Evaluation</h2>
+            <h2 style="margin-bottom: 0.3em;">Agentic Skill: Business Term Evaluation</h2>
 
             <div class="grid-2col">
 
                 <!-- Left: skill overview -->
                 <div>
                     <div class="col-header">Automated Evaluation Workflow</div>
-                    <div class="check-box">
+                    <div class="check-box tight">
                         <h3>What the skill does</h3>
                         <ul>
                             <li><strong>Phase 0:</strong> Determines artifact status (DRAFT vs PUBLISHED) to use appropriate tools</li>
@@ -401,21 +425,21 @@
                             <li><strong>Phase 2:</strong> Conducts ontology check — analyzes category fit, detects term clashes with existing artifacts</li>
                             <li><strong>Phase 3:</strong> Generates consolidated evaluation report with actionable recommendations</li>
                         </ul>
-                        <hr class="divider">
+                        <hr class="divider" style="margin: 0.3em 0;">
                         <h3>MCP Tools in action</h3>
                         <ul>
                             <li><code>list_draft_artifacts</code> — Discovers all draft artifacts pending approval with their names, IDs, types, and workflow status</li>
                             <li><code>get_artifact_details</code> — Retrieves comprehensive details for DRAFT artifacts including descriptions, relationships, stewards, and version history</li>
                             <li><code>search_governance_artifacts</code> — Checks if artifact is PUBLISHED (when not found in drafts) and detects potential clashes with existing artifacts</li>
                         </ul>
-                        <p class="note" style="margin-top: 0.5em;">The skill supports evaluation of both draft artifacts (for approval decisions) and published artifacts (for quality review).</p>
+                        <p class="note" style="margin-top: 0.3em;">The skill supports evaluation of both draft artifacts (for approval decisions) and published artifacts (for quality review).</p>
                     </div>
                 </div>
 
                 <!-- Right: activation & benefits -->
                 <div>
                     <div class="col-header">How to use it</div>
-                    <div class="check-box example">
+                    <div class="check-box example tight">
                         <h3>Activation phrases</h3>
                         <ul>
                             <li>"Should I approve this business term?"</li>
@@ -425,7 +449,7 @@
                             <li>"Check if [artifact] is good"</li>
                         </ul>
 
-                        <hr class="divider">
+                        <hr class="divider" style="margin: 0.3em 0;">
 
                         <h3>Key benefits</h3>
                         <ul>
@@ -436,7 +460,7 @@
                             <li>Supports both business terms and data classes</li>
                         </ul>
 
-                        <hr class="divider">
+                        <hr class="divider" style="margin: 0.3em 0;">
 
                         <p class="note">The skill orchestrates multiple MCP tools to retrieve artifact data, analyze relationships, and provide intelligent evaluation — all through natural language interaction.</p>
                     </div>
@@ -799,9 +823,9 @@
                 <!-- Right: approval workflow example -->
                 <div>
                     <div class="col-header">Solution — Data Intelligence Approval Workflow</div>
-                    <div class="check-box example">
+                    <div class="check-box example tight">
                         <h3>Built-in review &amp; approval template</h3>
-                        <p style="margin:0.3em 0 0.5em;">The <strong>Data Intelligence workflow</strong> ships with a ready-made <em>Business Term Approval</em> template that enforces the gate automatically:</p>
+                        <p style="margin:0.3em 0 0.4em;">The <strong>Data Intelligence workflow</strong> ships with a ready-made <em>Business Term Approval</em> template that enforces the gate automatically:</p>
                         <ul>
                             <li><strong>Submission:</strong> Author submits a draft term — the workflow triggers immediately, routing it to the assigned Data Steward queue.</li>
                             <li><strong>Automated pre-checks:</strong> The agentic skill runs the three checks (wording · ontology · data linkage) and attaches a quality report to the task.</li>
@@ -809,9 +833,72 @@
                             <li><strong>Publication gate:</strong> Only approved terms transition to <code>PUBLISHED</code> status; rejected terms return to the author with the steward's feedback attached.</li>
                             <li><strong>Audit trail:</strong> Every decision, comment, and version change is logged — satisfying governance and regulatory requirements out of the box.</li>
                         </ul>
-                        <hr class="divider">
+                        <hr class="divider" style="margin: 0.3em 0;">
                         <p class="good">✔ No custom build required — configure the template, assign stewards, and the gate is live.</p>
                     </div>
+
+                    <!-- Directed graph: 5 workflow steps -->
+                    <svg viewBox="0 0 480 130" xmlns="http://www.w3.org/2000/svg"
+                         style="width:100%; margin-top:0.5em; font-family:-apple-system,'Segoe UI',system-ui,sans-serif;">
+                        <defs>
+                            <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+                                <path d="M0,0 L7,3.5 L0,7 Z" fill="#57606a"/>
+                            </marker>
+                            <marker id="arr-green" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+                                <path d="M0,0 L7,3.5 L0,7 Z" fill="#059669"/>
+                            </marker>
+                            <marker id="arr-red" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+                                <path d="M0,0 L7,3.5 L0,7 Z" fill="#dc2626"/>
+                            </marker>
+                        </defs>
+
+                        <!-- Node boxes -->
+                        <!-- 1: Submit -->
+                        <rect x="2" y="34" width="68" height="28" rx="5" fill="#f7f8fa" stroke="#e5e7eb" stroke-width="1.2"/>
+                        <text x="36" y="45" text-anchor="middle" font-size="7.5" fill="#1f2328" font-weight="600">Submit</text>
+                        <text x="36" y="56" text-anchor="middle" font-size="6.5" fill="#57606a">Author</text>
+
+                        <!-- 2: Auto-checks -->
+                        <rect x="94" y="34" width="74" height="28" rx="5" fill="#f7f8fa" stroke="#e5e7eb" stroke-width="1.2"/>
+                        <text x="131" y="45" text-anchor="middle" font-size="7.5" fill="#1f2328" font-weight="600">Auto-checks</text>
+                        <text x="131" y="56" text-anchor="middle" font-size="6.5" fill="#57606a">Agentic skill</text>
+
+                        <!-- 3: Steward Review -->
+                        <rect x="192" y="34" width="80" height="28" rx="5" fill="#f7f8fa" stroke="#e5e7eb" stroke-width="1.2"/>
+                        <text x="232" y="45" text-anchor="middle" font-size="7.5" fill="#1f2328" font-weight="600">Steward Review</text>
+                        <text x="232" y="56" text-anchor="middle" font-size="6.5" fill="#57606a">Quality report</text>
+
+                        <!-- 4: Decision diamond -->
+                        <polygon points="316,48 336,34 356,48 336,62" fill="#eef6ff" stroke="#bfdbfe" stroke-width="1.2"/>
+                        <text x="336" y="46" text-anchor="middle" font-size="7" fill="#3730a3" font-weight="700">Approve</text>
+                        <text x="336" y="57" text-anchor="middle" font-size="7" fill="#3730a3" font-weight="700">/ Reject?</text>
+
+                        <!-- 5a: Published -->
+                        <rect x="384" y="14" width="82" height="28" rx="5" fill="#d1fae5" stroke="#6ee7b7" stroke-width="1.2"/>
+                        <text x="425" y="25" text-anchor="middle" font-size="7.5" fill="#065f46" font-weight="600">PUBLISHED</text>
+                        <text x="425" y="36" text-anchor="middle" font-size="6.5" fill="#065f46">Term goes live</text>
+
+                        <!-- 5b: Back to author -->
+                        <rect x="384" y="62" width="82" height="28" rx="5" fill="#fee2e2" stroke="#fca5a5" stroke-width="1.2"/>
+                        <text x="425" y="73" text-anchor="middle" font-size="7.5" fill="#991b1b" font-weight="600">Rejected</text>
+                        <text x="425" y="84" text-anchor="middle" font-size="6.5" fill="#991b1b">Feedback to author</text>
+
+                        <!-- Arrows: main flow -->
+                        <line x1="70" y1="48" x2="91" y2="48" stroke="#57606a" stroke-width="1.3" marker-end="url(#arr)"/>
+                        <line x1="168" y1="48" x2="189" y2="48" stroke="#57606a" stroke-width="1.3" marker-end="url(#arr)"/>
+                        <line x1="272" y1="48" x2="313" y2="48" stroke="#57606a" stroke-width="1.3" marker-end="url(#arr)"/>
+
+                        <!-- Arrow: Approve → Published -->
+                        <line x1="356" y1="41" x2="381" y2="29" stroke="#059669" stroke-width="1.3" marker-end="url(#arr-green)"/>
+                        <text x="366" y="31" text-anchor="middle" font-size="6.5" fill="#059669">✔</text>
+
+                        <!-- Arrow: Reject → Back to author -->
+                        <line x1="356" y1="55" x2="381" y2="68" stroke="#dc2626" stroke-width="1.3" marker-end="url(#arr-red)"/>
+                        <text x="366" y="68" text-anchor="middle" font-size="6.5" fill="#dc2626">✗</text>
+
+                        <!-- Audit trail note -->
+                        <text x="240" y="120" text-anchor="middle" font-size="7" fill="#57606a" font-style="italic">Full audit trail logged at every step</text>
+                    </svg>
                 </div>
 
             </div>
