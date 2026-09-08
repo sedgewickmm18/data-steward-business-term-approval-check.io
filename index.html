@@ -420,7 +420,6 @@
                     <div class="check-box tight">
                         <h3>What the skill does</h3>
                         <ul>
-                            <li><strong>Phase 0:</strong> Determines artifact status (DRAFT vs PUBLISHED) to use appropriate tools</li>
                             <li><strong>Phase 1:</strong> Performs wording quality check — assesses clarity, detects jargon, suggests improvements</li>
                             <li><strong>Phase 2:</strong> Conducts ontology check — analyzes category fit, detects term clashes with existing artifacts</li>
                             <li><strong>Phase 3:</strong> Generates consolidated evaluation report with actionable recommendations</li>
@@ -428,9 +427,9 @@
                         <hr class="divider" style="margin: 0.3em 0;">
                         <h3>MCP Tools in action</h3>
                         <ul>
-                            <li><code>list_draft_artifacts</code> — Discovers all draft artifacts pending approval with their names, IDs, types, and workflow status</li>
-                            <li><code>get_artifact_details</code> — Retrieves comprehensive details for DRAFT artifacts including descriptions, relationships, stewards, and version history</li>
-                            <li><code>search_governance_artifacts</code> — Checks if artifact is PUBLISHED (when not found in drafts) and detects potential clashes with existing artifacts</li>
+                            <li><code>get_artifact_details</code> — <b>wording quality:</b> Retrieves comprehensive details for DRAFT artifacts including descriptions, relationships, stewards, and version history</li>
+                            <li><code>list_business_terms_by_category</code> — <b>term clashes:</b> discovers business terms in the same categorywith their names, IDs, types and description</li>
+                            <li><code>search_governance_artifacts</code> — <b>migration scenario:</b> detects potential clashes with existing artifacts</li>
                         </ul>
                         <p class="note" style="margin-top: 0.3em;">The skill supports evaluation of both draft artifacts (for approval decisions) and published artifacts (for quality review).</p>
                     </div>
