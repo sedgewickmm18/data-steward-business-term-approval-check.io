@@ -41,22 +41,26 @@
         .grid-2col {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1.6em;
+            gap: 1.2em;
             align-items: start;
         }
+        .grid-2col > div { min-width: 0; }
 
         /* ── Check boxes ── */
         .check-box {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 6px;
-            padding: 0.75em 1em;
-            font-size: 0.56em;
-            line-height: 1.5;
+            padding: 0.6em 0.9em;
+            font-size: 0.50em;
+            line-height: 1.4;
             color: var(--text);
-            height: 100%;
             box-sizing: border-box;
+            overflow-wrap: break-word;
         }
+        .check-box table { width: 100%; table-layout: fixed; }
+        .check-box th, .check-box td { overflow-wrap: anywhere; }
+        .check-box code { overflow-wrap: anywhere; }
         .check-box.example {
             background: #eef6ff;
             border-color: #bfdbfe;
@@ -115,10 +119,9 @@
         /* ── Divider line in example box ── */
         .divider { border: none; border-top: 1px dashed var(--border); margin: 0.6em 0; }
 
-        /* ── Compact check-box: ~10% smaller, tighter rhythm ── */
+        /* ── Compact check-box ── */
         .check-box.compact {
-            font-size: 0.50em;
-            line-height: 1.4;
+            font-size: 0.46em;
         }
         .check-box.compact li {
             margin-bottom: 0.15em;
@@ -129,8 +132,8 @@
 
         /* ── Tight check-box: for very dense slides ── */
         .check-box.tight {
-            font-size: 0.47em;
-            line-height: 1.35;
+            font-size: 0.44em;
+            line-height: 1.3;
         }
         .check-box.tight li {
             margin-bottom: 0.12em;
@@ -139,10 +142,10 @@
             margin-bottom: 0.3em;
         }
 
-        /* ── Scrollable slide content ── */
+        /* ── Slide content must fit the slide, never scroll ── */
         .reveal .slides section {
-            overflow-y: auto;
-            max-height: 100vh;
+            overflow: hidden;
+            max-height: 100%;
         }
     </style>
 </head>
@@ -178,7 +181,7 @@
                 <!-- Left: explanatory text -->
                 <div>
                     <div class="col-header">What to look for</div>
-                    <div class="check-box">
+                    <div class="check-box compact">
                         <h3>Can a non-expert understand this?</h3>
                         <ul>
                             <li>Read the description as if you had no domain background. Does it make sense without additional context?</li>
@@ -195,7 +198,7 @@
                 <!-- Right: concrete example -->
                 <div>
                     <div class="col-header">Example</div>
-                    <div class="check-box example">
+                    <div class="check-box example compact">
                         <h3>Term proposed: <code>Cap Rate</code></h3>
 
                         <p class="bad">❌ Weak description</p>
@@ -242,7 +245,7 @@
                 <!-- Left: explanatory text -->
                 <div>
                     <div class="col-header">What to look for</div>
-                    <div class="check-box">
+                    <div class="check-box compact">
                         <h3>Does the term belong in its category?</h3>
                         <ul>
                             <li>Treat the assigned category as a node in an ontology. Ask: <em>Is this term a specialisation of the category concept, or does it belong somewhere else?</em></li>
@@ -325,7 +328,7 @@
                 <!-- Right: concrete example -->
                 <div>
                     <div class="col-header">Example</div>
-                    <div class="check-box example">
+                    <div class="check-box example compact">
                         <h3>Term: <code>Net Operating Income</code></h3>
 
                         <p style="margin: 0.3em 0 0.5em;">Metadata search results:</p>
@@ -523,7 +526,7 @@
                 <!-- Left: sub-steps -->
                 <div>
                     <div class="col-header">Steps</div>
-                    <div class="check-box">
+                    <div class="check-box compact">
                         <h3>Profile the current state of the glossary</h3>
                         <ul>
                             <li><strong>Extract all terms:</strong> Export every business term, definition, owner, and metadata tag into a unified staging area — a single flat view of what exists.</li>
@@ -538,7 +541,7 @@
                 <!-- Right: example -->
                 <div>
                     <div class="col-header">Example</div>
-                    <div class="check-box example">
+                    <div class="check-box example compact">
                         <h3>Glossary snapshot — <code>Customer</code> domain</h3>
                         <table style="width:100%; border-collapse:collapse; font-size:0.85em;">
                             <thead>
@@ -596,7 +599,7 @@
                 <!-- Left: sub-steps -->
                 <div>
                     <div class="col-header">Steps</div>
-                    <div class="check-box">
+                    <div class="check-box compact">
                         <h3>Collapse duplicates at scale — without reviewing every pair</h3>
                         <ul>
                             <li><strong>Fast Filtering:</strong> Pre-screen terms into broad candidate pools (by category, first token, or n-gram hash) so comparisons happen only within plausible clusters — not across all 1,000+ pairs.</li>
@@ -613,7 +616,7 @@
                 <!-- Right: example -->
                 <div>
                     <div class="col-header">Example — cluster discovered by AI</div>
-                    <div class="check-box example">
+                    <div class="check-box example compact">
                         <h3>Synonym cluster: <code>Vendor</code></h3>
                         <table style="width:100%; border-collapse:collapse; font-size:0.85em;">
                             <thead>
@@ -673,7 +676,7 @@
                 <!-- Left: sub-steps -->
                 <div>
                     <div class="col-header">Steps</div>
-                    <div class="check-box">
+                    <div class="check-box compact">
                         <h3>Make every surviving term business-readable</h3>
                         <ul>
                             <li><strong>Apply standard templates:</strong> Enforce an ISO 11179-style structure — a definition must state <em>what</em> the term is, not just <em>how</em> it is used. Include: concept type, distinguishing characteristics, units or format.</li>
@@ -688,7 +691,7 @@
                 <!-- Right: example -->
                 <div>
                     <div class="col-header">Example — definition rewrite</div>
-                    <div class="check-box example">
+                    <div class="check-box example compact">
                         <h3>Term: <code>Vendor</code> (canonical)</h3>
 
                         <p class="bad">❌ Before (circular, no context)</p>
@@ -732,7 +735,7 @@
                 <!-- Left: sub-steps -->
                 <div>
                     <div class="col-header">Steps</div>
-                    <div class="check-box">
+                    <div class="check-box compact">
                         <h3>Fit the cleaned terms into the target structure</h3>
                         <ul>
                             <li><strong>Map to top-level concepts:</strong> Assign each business term to a core ontological class (e.g. <code>Customer Account</code> maps to the class <em>Financial Account</em>).</li>
@@ -747,7 +750,7 @@
                 <!-- Right: example -->
                 <div>
                     <div class="col-header">Example — relationship mapping</div>
-                    <div class="check-box example">
+                    <div class="check-box example compact">
                         <h3>Terms mapped in the <code>Party</code> ontology class</h3>
 
                         <table style="width:100%; border-collapse:collapse; font-size:0.85em;">
@@ -807,7 +810,7 @@
                 <!-- Left: sub-steps -->
                 <div>
                     <div class="col-header">Steps</div>
-                    <div class="check-box">
+                    <div class="check-box compact">
                         <h3>Transition to production and prevent future drift</h3>
                         <ul>
                             <li><strong>Conduct a final review:</strong> Use a governed workflow to obtain formal sign-off from business stakeholders before any term goes live.</li>
@@ -922,12 +925,13 @@
 
 <script>
     Reveal.initialize({
-        width: "100%",
-        height: "100%",
-        margin: 0.04,
-
-        // Allow slides to scroll when content overflows the viewport
-        scrollActivationWidth: null,
+        // Fixed virtual canvas: reveal.js scales it down to fit any viewport,
+        // so all slides display fully without scrolling (e.g. at 1200x800).
+        width: 1600,
+        height: 1100,
+        margin: 0.03,
+        minScale: 0.1,
+        maxScale: 1.0,
 
         controls: true,
         controlsTutorial: true,
