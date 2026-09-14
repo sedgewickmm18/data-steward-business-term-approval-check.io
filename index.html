@@ -413,7 +413,7 @@
              ============================================================ -->
         <section id="agentic-skill">
             <div class="slide-label">Automation</div>
-            <h2 style="margin-bottom: 0.3em;">Agentic Skill: Business Term Evaluation</h2>
+            <h2 style="margin-bottom: 0.3em;">Agentic Skill: Glossary Artifact Evaluation</h2>
 
             <div class="grid-2col">
 
@@ -423,6 +423,7 @@
                     <div class="check-box tight">
                         <h3>What the skill does</h3>
                         <ul>
+                            <li><strong>Phase 0:</strong> Locates the artifact and determines if it is DRAFT or PUBLISHED</li>
                             <li><strong>Phase 1:</strong> Performs wording quality check — assesses clarity, detects jargon, suggests improvements</li>
                             <li><strong>Phase 2:</strong> Conducts ontology check — analyzes category fit, detects term clashes with existing artifacts</li>
                             <li><strong>Phase 3:</strong> Generates consolidated evaluation report with actionable recommendations</li>
@@ -430,9 +431,10 @@
                         <hr class="divider" style="margin: 0.3em 0;">
                         <h3>MCP Tools in action</h3>
                         <ul>
-                            <li><code>get_artifact_details</code> — <b>wording quality:</b> Retrieves comprehensive details for DRAFT artifacts including descriptions, relationships, stewards, and version history</li>
-                            <li><code>list_business_terms_by_category</code> — <b>term clashes:</b> discovers business terms in the same categorywith their names, IDs, types and description</li>
-                            <li><code>search_governance_artifacts</code> — <b>migration scenario:</b> detects potential clashes with existing artifacts</li>
+                            <li><code>list_draft_artifacts</code> — <b>status check:</b> discovers all pending draft artifacts; provides artifact_id and version_id needed for the next call</li>
+                            <li><code>get_artifact_details</code> — <b>artifact retrieval:</b> retrieves comprehensive details for DRAFT artifacts including descriptions, relationships, stewards, and version history</li>
+                            <li><code>list_business_terms_by_category</code> — <b>term clashes:</b> surfaces business terms in the same category by name; ranked by BM25 description similarity when a description is supplied</li>
+                            <li><code>search_governance_artifacts</code> — <b>published check &amp; data-class clashes:</b> confirms published status or detects clashes for data classes</li>
                         </ul>
                         <p class="note" style="margin-top: 0.3em;">The skill supports evaluation of both draft artifacts (for approval decisions) and published artifacts (for quality review).</p>
                     </div>
@@ -471,9 +473,410 @@
             </div>
 
             <aside class="notes">
-                The agentic skill automates the three-check workflow presented earlier,
-                using MCP tools to access governance data and LLM analysis to provide
-                data stewards with instant, comprehensive evaluation reports.
+                The agentic skill automates the evaluation workflow for both business terms and
+                data classes. Phase 0 determines draft vs published status; Phases 1–3 then
+                deliver wording, ontology, and consolidated report. All through natural language.
+            </aside>
+        </section>
+
+        <!-- ============================================================
+             DATA CLASS SECTION TITLE SLIDE
+             ============================================================ -->
+        <section id="dc-title" style="text-align: center;">
+            <h2 style="border: none; font-size: 1.4em; margin-top: 0.6em;">
+                Reviewing a Data Class Definition<br>for Publication
+            </h2>
+            <p style="font-size: 0.7em; color: var(--text-light); margin-top: 0.6em;">
+                Four checks a Data Steward should perform<br>
+                before approving or rejecting a proposed data class
+            </p>
+            <p style="font-size: 0.58em; color: var(--text-light); margin-top: 0.4em; max-width: 700px; margin-left: auto; margin-right: auto;">
+                Data classes classify existing data by column name and format — examples include
+                <em>Global Location Number (GLN)</em> and Germany's <em>Steuernummer</em>.
+                Their checks differ from business terms: no category hierarchy, but strict requirements on
+                uniqueness, fingerprint, data-quality rules, and sensitivity.
+            </p>
+            <aside class="notes">
+                Data classes describe how to identify a type of data value in the wild — by its name pattern
+                and format signature. The four checks here replace the ontology-category checks used for
+                business terms and add fingerprint and sensitivity dimensions.
+            </aside>
+        </section>
+
+        <!-- ============================================================
+             DATA CLASS SLIDE 1 – Uniqueness Check
+             ============================================================ -->
+        <section id="dc-uniqueness">
+            <div class="slide-label">Check 1 of 4</div>
+            <h2>Uniqueness</h2>
+
+            <div class="grid-2col">
+
+                <!-- Left: explanatory text -->
+                <div>
+                    <div class="col-header">What to look for</div>
+                    <div class="check-box compact">
+                        <h3>Is the name truly unique across all data classes?</h3>
+                        <ul>
+                            <li>Data classes have <strong>no category hierarchy</strong> — unlike business terms, a data class is not disambiguated by its parent category. The name alone must be globally unique.</li>
+                            <li>Search the full data-class registry for exact matches and near-matches (e.g. <code>Steuernummer</code> vs <code>Tax Number (DE)</code> vs <code>German Tax ID</code>).</li>
+                            <li>Check whether the proposed class is a <strong>regional variant</strong> of an already-published global class. If a global <code>Tax Identification Number</code> exists, a narrower <code>Steuernummer</code> may be valid only if it genuinely adds specificity.</li>
+                            <li>Verify that synonyms and alternative names listed in the definition do not clash with the <em>primary name</em> of an existing data class.</li>
+                            <li>A data class name should be self-contained: anyone seeing <code>GLN</code> in a column header should map it to exactly one data class, no qualifier needed.</li>
+                        </ul>
+                        <hr class="divider">
+                        <p class="note">Tip: run a search on both the full name and common abbreviations before approving.</p>
+                    </div>
+                </div>
+
+                <!-- Right: concrete example -->
+                <div>
+                    <div class="col-header">Example</div>
+                    <div class="check-box example compact">
+                        <h3>Proposed data class: <code>GLN</code></h3>
+
+                        <p style="margin: 0.3em 0 0.5em;">Existing data classes in the registry:</p>
+                        <ul>
+                            <li><code>Global Location Number</code> — 13-digit GS1 identifier for physical locations.</li>
+                            <li><code>GS1 Location Code</code> — alias for the same GS1 standard.</li>
+                        </ul>
+
+                        <hr class="divider" style="margin: 0.3em 0;">
+
+                        <p class="bad">⚠ Potential clash</p>
+                        <ul>
+                            <li><code>GLN</code> is the common abbreviation of <code>Global Location Number</code> — registering it as a separate data class creates ambiguity.</li>
+                            <li>Action: add <code>GLN</code> as a synonym/alias of <code>Global Location Number</code> rather than creating a new entry.</li>
+                        </ul>
+
+                        <hr class="divider" style="margin: 0.3em 0;">
+
+                        <p class="good">✔ Resolution</p>
+                        <ul>
+                            <li>Keep <code>Global Location Number</code> as the canonical name.</li>
+                            <li>Add <code>GLN</code>, <code>GS1 Location Code</code> as registered synonyms.</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="notes">
+                The absence of a category hierarchy is what makes uniqueness the first check for data classes.
+                Without it, two data classes with overlapping names or abbreviations will cause matching
+                ambiguity in automated column classifiers.
+            </aside>
+        </section>
+
+        <!-- ============================================================
+             DATA CLASS SLIDE 2 – Fingerprint Check
+             ============================================================ -->
+        <section id="dc-fingerprint">
+            <div class="slide-label">Check 2 of 4</div>
+            <h2>Fingerprint</h2>
+
+            <div class="grid-2col">
+
+                <!-- Left: explanatory text -->
+                <div>
+                    <div class="col-header">What to look for</div>
+                    <div class="check-box compact">
+                        <h3>Can a classifier reliably recognise values of this data class?</h3>
+                        <ul>
+                            <li>A fingerprint is a <strong>matching rule</strong> that lets automated tools identify columns likely to carry values of this data class — either by column name pattern or by value format.</li>
+                            <li>Accepted fingerprint forms:
+                                <ul>
+                                    <li><strong>Regex:</strong> a regular expression that matches valid values (e.g. <code>^\d{3}/\d{3}/\d{5}$</code> for a Steuernummer).</li>
+                                    <li><strong>Natural language rule:</strong> a precise descriptive rule for cases where a pure regex is insufficient (e.g. "13 numeric digits, first digit non-zero, passes GS1 check-digit algorithm").</li>
+                                </ul>
+                            </li>
+                            <li>The fingerprint must be <strong>specific enough</strong> to avoid false positives — a regex that matches any 10-digit number will hit phone numbers, account IDs, and postal codes alike.</li>
+                            <li>If both a column-name pattern and a value-format pattern are available, prefer the <strong>value-format pattern</strong> — it is more robust across systems with non-standard column naming.</li>
+                            <li>Test the fingerprint against at least two known positive examples and one known negative example before approving.</li>
+                        </ul>
+                        <hr class="divider">
+                        <p class="note">Tip: if a regex cannot be written without significant false-positive risk, a natural-language rule is acceptable — but must be precise enough for a human or LLM to apply consistently.</p>
+                    </div>
+                </div>
+
+                <!-- Right: concrete example -->
+                <div>
+                    <div class="col-header">Example</div>
+                    <div class="check-box example compact">
+                        <h3>Data class: <code>Steuernummer</code></h3>
+
+                        <p class="bad">❌ Weak fingerprint</p>
+                        <p style="font-style: italic; margin: 0.3em 0 0.6em;">"Consists of digits and slashes."</p>
+                        <ul>
+                            <li>Too vague — matches phone numbers, fractions, date strings</li>
+                            <li>No length constraint; no structural rule</li>
+                        </ul>
+
+                        <hr class="divider">
+
+                        <p class="good">✔ Precise fingerprint</p>
+                        <p style="font-style: italic; margin: 0.3em 0 0.3em;">Regex: <code>^\d{2,3}/\d{3}/\d{5}$</code></p>
+                        <ul>
+                            <li>Format: <code>123/456/78901</code> — 2–3 digits, slash, 3 digits, slash, 5 digits</li>
+                            <li>Matches known positive: <code>123/456/78901</code> ✓</li>
+                            <li>Rejects known negative: <code>+49-30-123456</code> ✗ (phone number)</li>
+                        </ul>
+
+                        <hr class="divider" style="margin: 0.3em 0;">
+
+                        <p class="note">Complementary column-name pattern: column name contains <code>steuer</code>, <code>steuernr</code>, or <code>tax_id</code> (German locale).</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="notes">
+                The fingerprint is the machine-readable contract for automated classification.
+                A vague fingerprint leads to noisy results; an overly tight one misses valid values.
+                Both a regex and a natural-language fallback are acceptable as long as the rule is testable.
+            </aside>
+        </section>
+
+        <!-- ============================================================
+             DATA CLASS SLIDE 3 – Data Quality Check
+             ============================================================ -->
+        <section id="dc-quality">
+            <div class="slide-label">Check 3 of 4</div>
+            <h2>Data Quality Rules</h2>
+
+            <div class="grid-2col">
+
+                <!-- Left: explanatory text -->
+                <div>
+                    <div class="col-header">What to look for</div>
+                    <div class="check-box compact">
+                        <h3>How do we spot violations of this data class?</h3>
+                        <ul>
+                            <li>Data quality rules are the <strong>flip side of the fingerprint</strong>: where the fingerprint defines what a valid value looks like, quality rules define what a <em>violation</em> looks like — and how severe it is.</li>
+                            <li>At minimum, a data class submission should include:
+                                <ul>
+                                    <li><strong>Format violation rule:</strong> values that fail the fingerprint regex or pattern (e.g. wrong digit count, missing separators).</li>
+                                    <li><strong>Completeness rule:</strong> whether null/empty values are permitted or constitute a violation.</li>
+                                    <li><strong>Uniqueness rule:</strong> is each value expected to be unique within a dataset, or can it repeat?</li>
+                                </ul>
+                            </li>
+                            <li>Optional but recommended: a <strong>referential rule</strong> — does the value need to resolve against a reference registry (e.g. the GS1 GLN database)?</li>
+                            <li>Quality rules should be expressed in <strong>testable, tool-agnostic language</strong> so they can be implemented in any data-quality framework.</li>
+                        </ul>
+                        <hr class="divider">
+                        <p class="note">Tip: link quality rules to a severity level (Critical / Major / Minor) so downstream data-quality dashboards can prioritise remediation.</p>
+                    </div>
+                </div>
+
+                <!-- Right: concrete example -->
+                <div>
+                    <div class="col-header">Example</div>
+                    <div class="check-box example compact">
+                        <h3>Data class: <code>Global Location Number (GLN)</code></h3>
+
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.85em;">
+                            <thead>
+                                <tr style="background: #dbeafe;">
+                                    <th style="text-align: left; padding: 0.25em 0.5em; border: 1px solid #bfdbfe;">Rule</th>
+                                    <th style="text-align: left; padding: 0.25em 0.5em; border: 1px solid #bfdbfe;">Condition</th>
+                                    <th style="text-align: left; padding: 0.25em 0.5em; border: 1px solid #bfdbfe;">Severity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;">Format</td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;">Not 13 numeric digits</td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><span class="bad">Critical</span></td>
+                                </tr>
+                                <tr style="background: #f7f8fa;">
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;">Check digit</td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;">Fails GS1 Mod-10 check</td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><span class="bad">Critical</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;">Completeness</td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;">NULL or empty string</td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><span class="note">Major</span></td>
+                                </tr>
+                                <tr style="background: #f7f8fa;">
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;">Uniqueness</td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;">Duplicate within dataset</td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><span class="note">Major</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;">Referential</td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;">Not found in GS1 registry</td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><span class="note">Minor</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <hr class="divider">
+
+                        <p class="note">Format and check-digit rules can be automated immediately; registry lookup requires connectivity to the GS1 service — flag as a future enhancement if not available.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="notes">
+                Data quality rules operationalise the data class. Without them the class is purely descriptive —
+                you cannot measure conformance or drive remediation. Even two or three testable rules are
+                significantly better than none.
+            </aside>
+        </section>
+
+        <!-- ============================================================
+             DATA CLASS SLIDE 4 – Sensitivity Check
+             ============================================================ -->
+        <section id="dc-sensitivity">
+            <div class="slide-label">Check 4 of 4</div>
+            <h2>Sensitivity &amp; PII Likelihood</h2>
+
+            <div class="grid-2col">
+
+                <!-- Left: explanatory text -->
+                <div>
+                    <div class="col-header">What to look for</div>
+                    <div class="check-box compact">
+                        <h3>How likely is this data class to carry PII or sensitive data?</h3>
+                        <ul>
+                            <li>Data classes are often used by automated scanners to <strong>classify columns at scale</strong>. A high-sensitivity rating signals that any column matched to this class should be reviewed for privacy and regulatory compliance.</li>
+                            <li>Rate sensitivity on a three-point scale:
+                                <ul>
+                                    <li><span class="bad"><strong>High</strong></span> — directly identifies an individual or entity (e.g. national ID numbers, biometric markers).</li>
+                                    <li><span class="note"><strong>Medium</strong></span> — can identify individuals when combined with other data (quasi-identifiers such as postal code + birth date).</li>
+                                    <li><span class="good"><strong>Low</strong></span> — describes assets, products, or locations with no direct link to natural persons.</li>
+                                </ul>
+                            </li>
+                            <li>Note: IKC (Information Knowledge Catalog) does not currently expose a dedicated PII marker on data classes — <strong>sensitivity must be documented in the description field</strong> and enforced through governance policies.</li>
+                            <li>Check whether applicable regulations apply (GDPR, CCPA, etc.) and whether a data-protection impact assessment is required before the class can be published.</li>
+                            <li>If the class is High sensitivity, ensure the description explicitly names the legal basis for processing and any retention constraints.</li>
+                        </ul>
+                        <hr class="divider">
+                        <p class="note">Tip: any data class whose fingerprint can match a government-issued ID number, financial account number, or biometric value should default to High sensitivity.</p>
+                    </div>
+                </div>
+
+                <!-- Right: concrete example -->
+                <div>
+                    <div class="col-header">Example</div>
+                    <div class="check-box example compact">
+                        <h3>Sensitivity rating comparison</h3>
+
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.85em;">
+                            <thead>
+                                <tr style="background: #dbeafe;">
+                                    <th style="text-align: left; padding: 0.25em 0.5em; border: 1px solid #bfdbfe;">Data Class</th>
+                                    <th style="text-align: left; padding: 0.25em 0.5em; border: 1px solid #bfdbfe;">Rating</th>
+                                    <th style="text-align: left; padding: 0.25em 0.5em; border: 1px solid #bfdbfe;">Reason</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><code>Steuernummer</code></td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><span class="bad">High</span></td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;">Directly identifies a German natural person or business</td>
+                                </tr>
+                                <tr style="background: #f7f8fa;">
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><code>Postal Code (DE)</code></td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><span class="note">Medium</span></td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;">Quasi-identifier — combines with other fields to narrow identity</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><code>Global Location Number</code></td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;"><span class="good">Low</span></td>
+                                    <td style="padding: 0.2em 0.5em; border: 1px solid #e5e7eb;">Identifies physical locations (warehouses, stores) — not persons</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <hr class="divider">
+
+                        <p class="bad">⚠ Current IKC limitation</p>
+                        <ul>
+                            <li>No dedicated PII marker field in IKC data class definitions.</li>
+                            <li>Workaround: include a structured sensitivity statement in the description, e.g.:<br>
+                                <em style="font-size: 0.9em;">«Sensitivity: High — personal data under GDPR Art. 4(1). Retention: 10 years post-contract.»</em>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="notes">
+                Sensitivity drives downstream access controls, masking policies, and regulatory obligations.
+                Even if IKC does not enforce it structurally, documenting it in the description ensures
+                data engineers and privacy officers can discover and act on it.
+            </aside>
+        </section>
+
+        <!-- ============================================================
+             DATA CLASS SUMMARY + AGENTIC SKILL SLIDE
+             ============================================================ -->
+        <section id="dc-summary">
+            <h2 style="border: none; margin-bottom: 0.4em;">Four Checks at a Glance — Data Classes</h2>
+
+            <div style="display: flex; justify-content: center; gap: 1em; margin-bottom: 0.8em; font-size: 0.55em;">
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.8em 1.1em; max-width: 200px; text-align: left;">
+                    <div style="font-size: 1.6em; margin-bottom: 0.3em;">🏷</div>
+                    <strong>1. Uniqueness</strong>
+                    <p style="color: var(--text-light); margin: 0.3em 0 0;">Name is globally unique — no category scope to disambiguate. Check for exact and abbreviation clashes across the full registry.</p>
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.8em 1.1em; max-width: 200px; text-align: left;">
+                    <div style="font-size: 1.6em; margin-bottom: 0.3em;">🔍</div>
+                    <strong>2. Fingerprint</strong>
+                    <p style="color: var(--text-light); margin: 0.3em 0 0;">Regex or natural-language rule that lets classifiers recognise valid values. Must be specific enough to avoid false positives.</p>
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.8em 1.1em; max-width: 200px; text-align: left;">
+                    <div style="font-size: 1.6em; margin-bottom: 0.3em;">✅</div>
+                    <strong>3. Data Quality</strong>
+                    <p style="color: var(--text-light); margin: 0.3em 0 0;">Testable violation rules (format, completeness, uniqueness, referential) with severity levels. Flip side of the fingerprint.</p>
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.8em 1.1em; max-width: 200px; text-align: left;">
+                    <div style="font-size: 1.6em; margin-bottom: 0.3em;">🔒</div>
+                    <strong>4. Sensitivity</strong>
+                    <p style="color: var(--text-light); margin: 0.3em 0 0;">Rate PII likelihood (High/Medium/Low). Document in description — IKC has no dedicated PII marker field yet.</p>
+                </div>
+            </div>
+
+            <div class="grid-2col" style="font-size: 0.92em;">
+
+                <!-- Left: what's not in scope yet -->
+                <div>
+                    <div class="col-header">Out of scope (first stage)</div>
+                    <div class="check-box tight">
+                        <h3>Known limitations &amp; future work</h3>
+                        <ul>
+                            <li><strong>Columnar scope only:</strong> Data classes can refer to columns. Broader/narrower scope (dataset-level, record-level) is deferred.</li>
+                            <li><strong>Java / JavaScript type rules:</strong> Data classes can specify matching rules for Java classes or JS types — needs further investigation before inclusion.</li>
+                            <li><strong>PII marker:</strong> IKC does not currently expose a dedicated PII marker on data classes. Use the description field as a workaround; formal marker support is a future platform enhancement.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Right: agentic skill support -->
+                <div>
+                    <div class="col-header">Agentic Skill support for Data Classes</div>
+                    <div class="check-box example tight">
+                        <h3>How the skill evaluates data classes</h3>
+                        <ul>
+                            <li><strong>Uniqueness:</strong> calls <code>list_data_classes_by_search_term</code> and <code>search_governance_artifacts</code> to surface name and abbreviation clashes across the full registry.</li>
+                            <li><strong>Fingerprint &amp; Quality:</strong> LLM analysis of the description checks for the presence of a regex or natural-language pattern and at least one quality violation rule.</li>
+                            <li><strong>Sensitivity:</strong> LLM detects PII-indicative patterns in the description and flags missing sensitivity statements.</li>
+                            <li><strong>Wording:</strong> same clarity and jargon checks as for business terms — does a non-SME understand the description?</li>
+                        </ul>
+                        <hr class="divider" style="margin: 0.3em 0;">
+                        <p class="note">Activation: <em>"Should I approve this data class?"</em> or <em>"Evaluate the data class Steuernummer"</em> — the skill detects <code>artifact_type = data_class</code> automatically.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="notes">
+                This summary slide closes the data-class section. The out-of-scope items are explicit —
+                they set expectations for the first release and give a clear backlog for future iterations.
             </aside>
         </section>
 
