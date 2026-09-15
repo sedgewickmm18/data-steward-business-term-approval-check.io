@@ -470,10 +470,15 @@
                         <ul>
                             <li><code>list_draft_artifacts</code> — <b>status check:</b> discovers all pending draft artifacts; provides artifact_id and version_id needed for the next call</li>
                             <li><code>get_artifact_details</code> — <b>artifact retrieval:</b> retrieves comprehensive details for DRAFT artifacts including descriptions, relationships, stewards, and version history</li>
-                            <li><code>list_business_terms_by_category</code> — <b>term clashes:</b> surfaces business terms in the same category by name; ranked by BM25 description similarity when a description is supplied</li>
-                            <li><code>search_governance_artifacts</code> — <b>published check &amp; data-class clashes:</b> confirms published status or detects clashes for data classes</li>
+                            <li><code>list_business_terms_by_category</code> — <b>term clash detection (two calls):</b>
+                                <ul>
+                                    <li>Call 1 — with description: BM25-ranks existing terms by semantic similarity → surfaces top 5 likely clashes</li>
+                                    <li>Call 2 — without description: fetches all terms in the category → exact/near-name match scan</li>
+                                </ul>
+                            </li>
+                            <li><code>search_governance_artifacts</code> — <b>published check &amp; fallback:</b> confirms published status; also used as fallback when category cannot be resolved</li>
                         </ul>
-                        <p class="note" style="margin-top: 0.3em;">The skill supports evaluation of both draft artifacts (for approval decisions) and published artifacts (for quality review).</p>
+                        <p class="note" style="margin-top: 0.3em;">The skill supports evaluation of both draft artifacts (for approval decisions) and published artifacts (for quality review). Data class clash detection uses <code>search_governance_artifacts</code> — data classes have no category hierarchy.</p>
                     </div>
                 </div>
 
@@ -916,6 +921,79 @@
                 they set expectations for the first release and give a clear backlog for future iterations.
             </aside>
         </section>
+
+        <!-- ============================================================
+             DATA CLASS AGENTIC SKILL SLIDE
+             ============================================================ -->
+        <section id="dc-agentic-skill">
+            <div class="slide-label">Automation</div>
+            <h2 style="margin-bottom: 0.3em;">Agentic Skill: Data Class Evaluation</h2>
+
+            <div class="grid-2col">
+
+                <!-- Left: skill workflow for data classes -->
+                <div>
+                    <div class="col-header">Automated Evaluation Workflow</div>
+                    <div class="check-box tight">
+                        <h3>What the skill does for data classes</h3>
+                        <ul>
+                            <li><strong>Phase 0:</strong> Locates the data class and determines if it is DRAFT or PUBLISHED</li>
+                            <li><strong>Phase 1:</strong> Wording quality check — clarity, jargon detection, non-SME accessibility</li>
+                            <li><strong>Phase 2:</strong> Uniqueness &amp; clash detection — global registry scan (no category hierarchy)</li>
+                            <li><strong>Phase 3:</strong> Consolidated report covering all four review dimensions with approve/reject guidance</li>
+                        </ul>
+                        <hr class="divider" style="margin: 0.3em 0;">
+                        <h3>MCP Tools in action</h3>
+                        <ul>
+                            <li><code>list_draft_artifacts</code> — <b>status check:</b> discovers all pending draft data classes; provides artifact_id and version_id</li>
+                            <li><code>get_artifact_details</code> — <b>artifact retrieval:</b> retrieves full description, fingerprint, quality rules, and sensitivity info for DRAFT data classes</li>
+                            <li><code>list_data_classes_by_search_term</code> — <b>alternative draft search:</b> targeted lookup when the data class name is known</li>
+                            <li><code>search_governance_artifacts</code> — <b>uniqueness check &amp; published clash detection:</b> scans the full registry for name and abbreviation clashes; no category filter applies</li>
+                        </ul>
+                        <p class="note" style="margin-top: 0.3em;">Unlike business terms, data classes have <strong>no category hierarchy</strong> — clash detection is global, and <code>list_business_terms_by_category</code> is not used.</p>
+                    </div>
+                </div>
+
+                <!-- Right: four evaluation dimensions + activation -->
+                <div>
+                    <div class="col-header">Four evaluation dimensions</div>
+                    <div class="check-box example tight">
+                        <h3>What the LLM &amp; tools assess</h3>
+                        <ul>
+                            <li><strong>🏷 Uniqueness:</strong> <code>search_governance_artifacts</code> + <code>list_data_classes_by_search_term</code> surface exact name matches and common abbreviation clashes across the full registry</li>
+                            <li><strong>🔍 Fingerprint:</strong> LLM inspects the description for a regex or natural-language matching rule; flags if absent or if the rule is too broad to avoid false positives</li>
+                            <li><strong>✅ Data Quality Rules:</strong> LLM checks for at least one testable violation rule (format, completeness, uniqueness) with an associated severity level (Critical / Major / Minor)</li>
+                            <li><strong>🔒 Sensitivity / PII:</strong> LLM detects PII-indicative patterns and flags missing sensitivity statements — IKC has no dedicated PII marker field; sensitivity must be documented in the description</li>
+                        </ul>
+
+                        <hr class="divider" style="margin: 0.3em 0;">
+
+                        <h3>Activation phrases</h3>
+                        <ul>
+                            <li>"Should I approve this data class?"</li>
+                            <li>"Evaluate the data class <em>Steuernummer</em>"</li>
+                            <li>"Review this data class for approval"</li>
+                            <li>"Analyze this data class"</li>
+                        </ul>
+
+                        <hr class="divider" style="margin: 0.3em 0;">
+
+                        <p class="note">The skill auto-detects <code>artifact_type = data_class</code> from the user's phrasing. No separate invocation needed — the same skill handles business terms and data classes.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="notes">
+                This slide parallels the business-term agentic skill slide but highlights the key
+                difference: no category hierarchy means clash detection is a global registry scan
+                rather than a category-scoped BM25 query. The four dimensions map directly to the
+                four data-class review checks. Fingerprint and quality-rule coverage is LLM-based
+                since no structured fields exist for them in IKC yet.
+            </aside>
+        </section>
+
+
 
         <!-- ============================================================
              MIGRATION TITLE SLIDE
