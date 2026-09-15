@@ -450,7 +450,7 @@
              ============================================================ -->
         <section id="agentic-skill">
             <div class="slide-label">Automation</div>
-            <h2 style="margin-bottom: 0.3em;">Agentic Skill: Glossary Artifact Evaluation</h2>
+            <h2 style="margin-bottom: 0.3em;">Agentic Skill: Business Term Evaluation</h2>
 
             <div class="grid-2col">
 
@@ -460,10 +460,10 @@
                     <div class="check-box tight">
                         <h3>What the skill does</h3>
                         <ul>
-                            <li><strong>Phase 0:</strong> Locates the artifact and determines if it is DRAFT or PUBLISHED</li>
+                            <li><strong>Phase 0:</strong> Locates the business term and determines if it is DRAFT or PUBLISHED</li>
                             <li><strong>Phase 1:</strong> Performs wording quality check — assesses clarity, detects jargon, suggests improvements</li>
-                            <li><strong>Phase 2:</strong> Conducts ontology check — analyzes category fit, detects term clashes with existing artifacts</li>
-                            <li><strong>Phase 3:</strong> Generates consolidated evaluation report with actionable recommendations</li>
+                            <li><strong>Phase 2:</strong> Conducts ontology check — analyzes category fit and detects clashes with existing terms</li>
+                            <li><strong>Phase 3:</strong> Generates a consolidated business-term evaluation report with actionable recommendations</li>
                         </ul>
                         <hr class="divider" style="margin: 0.3em 0;">
                         <h3>MCP Tools in action</h3>
@@ -478,7 +478,7 @@
                             </li>
                             <li><code>search_governance_artifacts</code> — <b>published check &amp; fallback:</b> confirms published status; also used as fallback when category cannot be resolved</li>
                         </ul>
-                        <p class="note" style="margin-top: 0.3em;">The skill supports evaluation of both draft artifacts (for approval decisions) and published artifacts (for quality review). Data class clash detection uses <code>search_governance_artifacts</code> — data classes have no category hierarchy.</p>
+                        <p class="note" style="margin-top: 0.3em;">This business-term skill evaluates draft terms for approval decisions and published terms for quality review. Data-class evaluation is handled by the separate <code>data-class-evaluation</code> skill.</p>
                     </div>
                 </div>
 
@@ -503,7 +503,7 @@
                             <li>Faster review cycle — automated checks in seconds</li>
                             <li>Comprehensive analysis — catches issues humans might miss</li>
                             <li>Actionable recommendations — clear approve/reject/change guidance</li>
-                            <li>Supports both business terms and data classes</li>
+                            <li>Focused business-term workflow and recommendations</li>
                         </ul>
 
                         <hr class="divider" style="margin: 0.3em 0;">
@@ -515,9 +515,9 @@
             </div>
 
             <aside class="notes">
-                The agentic skill automates the evaluation workflow for both business terms and
-                data classes. Phase 0 determines draft vs published status; Phases 1–3 then
-                deliver wording, ontology, and consolidated report. All through natural language.
+                The business-term-evaluation skill automates the business-term workflow. Phase 0
+                determines draft vs published status; Phases 1–3 then deliver wording, ontology,
+                and a consolidated report. Data classes use their own dedicated skill.
             </aside>
         </section>
 
@@ -904,13 +904,13 @@
                     <div class="check-box example tight">
                         <h3>How the skill evaluates data classes</h3>
                         <ul>
-                            <li><strong>Uniqueness:</strong> calls <code>list_data_classes_by_search_term</code> and <code>search_governance_artifacts</code> to surface name and abbreviation clashes across the full registry.</li>
-                            <li><strong>Fingerprint &amp; Quality:</strong> LLM analysis of the description checks for the presence of a regex or natural-language pattern and at least one quality violation rule.</li>
-                            <li><strong>Sensitivity:</strong> LLM detects PII-indicative patterns in the description and flags missing sensitivity statements.</li>
-                            <li><strong>Wording:</strong> same clarity and jargon checks as for business terms — does a non-SME understand the description?</li>
+                            <li><strong>Uniqueness:</strong> calls <code>search_governance_artifacts</code> to scan the full registry for exact and near-name clashes.</li>
+                            <li><strong>Fingerprint:</strong> assesses configured column-name, data-type, length, format, and matching criteria; reports Strong, Partial, or Missing.</li>
+                            <li><strong>Data quality:</strong> distinguishes a value-level violation rule from a column-only classifier, which cannot identify individual invalid values.</li>
+                            <li><strong>Sensitivity:</strong> assesses likely PII exposure from the description and available classification metadata; flags when privacy-owner confirmation is needed.</li>
                         </ul>
                         <hr class="divider" style="margin: 0.3em 0;">
-                        <p class="note">Activation: <em>"Should I approve this data class?"</em> or <em>"Evaluate the data class Steuernummer"</em> — the skill detects <code>artifact_type = data_class</code> automatically.</p>
+                        <p class="note">Activation: <em>"Should I approve this data class?"</em> or <em>"Evaluate the data class Steuernummer"</em> — the dedicated <code>data-class-evaluation</code> skill handles this workflow.</p>
                     </div>
                 </div>
 
@@ -938,17 +938,19 @@
                         <h3>What the skill does for data classes</h3>
                         <ul>
                             <li><strong>Phase 0:</strong> Locates the data class and determines if it is DRAFT or PUBLISHED</li>
-                            <li><strong>Phase 1:</strong> Wording quality check — clarity, jargon detection, non-SME accessibility</li>
-                            <li><strong>Phase 2:</strong> Uniqueness &amp; clash detection — global registry scan (no category hierarchy)</li>
-                            <li><strong>Phase 3:</strong> Consolidated report covering all four review dimensions with approve/reject guidance</li>
+                            <li><strong>Phase 1:</strong> Assesses description clarity and non-SME accessibility</li>
+                            <li><strong>Phase 2:</strong> Checks global name uniqueness — no category hierarchy applies</li>
+                            <li><strong>Phase 3:</strong> Assesses the column-scope fingerprint</li>
+                            <li><strong>Phase 4:</strong> Assesses readiness for value-level data-quality violation checks</li>
+                            <li><strong>Phase 5:</strong> Assesses sensitivity and likely PII exposure</li>
+                            <li><strong>Phase 6:</strong> Generates a consolidated evaluation report with recommendation</li>
                         </ul>
                         <hr class="divider" style="margin: 0.3em 0;">
                         <h3>MCP Tools in action</h3>
                         <ul>
                             <li><code>list_draft_artifacts</code> — <b>status check:</b> discovers all pending draft data classes; provides artifact_id and version_id</li>
                             <li><code>get_artifact_details</code> — <b>artifact retrieval:</b> retrieves full description, fingerprint, quality rules, and sensitivity info for DRAFT data classes</li>
-                            <li><code>list_data_classes_by_search_term</code> — <b>alternative draft search:</b> targeted lookup when the data class name is known</li>
-                            <li><code>search_governance_artifacts</code> — <b>uniqueness check &amp; published clash detection:</b> scans the full registry for name and abbreviation clashes; no category filter applies</li>
+                            <li><code>search_governance_artifacts</code> — <b>published lookup &amp; uniqueness check:</b> scans the full registry for name and abbreviation clashes; no category filter applies</li>
                         </ul>
                         <p class="note" style="margin-top: 0.3em;">Unlike business terms, data classes have <strong>no category hierarchy</strong> — clash detection is global, and <code>list_business_terms_by_category</code> is not used.</p>
                     </div>
@@ -960,10 +962,10 @@
                     <div class="check-box example tight">
                         <h3>What the LLM &amp; tools assess</h3>
                         <ul>
-                            <li><strong>🏷 Uniqueness:</strong> <code>search_governance_artifacts</code> + <code>list_data_classes_by_search_term</code> surface exact name matches and common abbreviation clashes across the full registry</li>
-                            <li><strong>🔍 Fingerprint:</strong> LLM inspects the description for a regex or natural-language matching rule; flags if absent or if the rule is too broad to avoid false positives</li>
-                            <li><strong>✅ Data Quality Rules:</strong> LLM checks for at least one testable violation rule (format, completeness, uniqueness) with an associated severity level (Critical / Major / Minor)</li>
-                            <li><strong>🔒 Sensitivity / PII:</strong> LLM detects PII-indicative patterns and flags missing sensitivity statements — IKC has no dedicated PII marker field; sensitivity must be documented in the description</li>
+                            <li><strong>🏷 Uniqueness:</strong> <code>search_governance_artifacts</code> surfaces exact and near-name clashes across the full registry</li>
+                            <li><strong>🔍 Fingerprint:</strong> LLM assesses configured column metadata criteria, testable examples, and boundary conditions</li>
+                            <li><strong>✅ Data Quality:</strong> LLM determines whether a value-level violation rule exists; a column-only classifier cannot validate individual values</li>
+                            <li><strong>🔒 Sensitivity / PII:</strong> LLM assesses likely exposure from the description and available metadata; sensitivity is advisory without an authoritative privacy classification</li>
                         </ul>
 
                         <hr class="divider" style="margin: 0.3em 0;">
@@ -978,18 +980,17 @@
 
                         <hr class="divider" style="margin: 0.3em 0;">
 
-                        <p class="note">The skill auto-detects <code>artifact_type = data_class</code> from the user's phrasing. No separate invocation needed — the same skill handles business terms and data classes.</p>
+                        <p class="note">This is a distinct <code>data-class-evaluation</code> skill. It evaluates column-oriented data classes only; Java and JavaScript classifier rules remain out of scope for this first stage.</p>
                     </div>
                 </div>
 
             </div>
 
             <aside class="notes">
-                This slide parallels the business-term agentic skill slide but highlights the key
-                difference: no category hierarchy means clash detection is a global registry scan
-                rather than a category-scoped BM25 query. The four dimensions map directly to the
-                four data-class review checks. Fingerprint and quality-rule coverage is LLM-based
-                since no structured fields exist for them in IKC yet.
+                The dedicated data-class-evaluation skill follows seven phases: status, clarity,
+                global uniqueness, fingerprint, value-level quality readiness, sensitivity, and a
+                consolidated report. Its global uniqueness check and column-oriented scope differ
+                fundamentally from the business-term-evaluation skill.
             </aside>
         </section>
 

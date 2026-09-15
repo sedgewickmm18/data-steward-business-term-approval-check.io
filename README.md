@@ -26,16 +26,16 @@ A **summary slide** ("Three Checks at a Glance") recaps all three gates.
 
 ---
 
-### 2 · Agentic Skill — Glossary Artifact Evaluation
+### 2 · Agentic Skill — Business Term Evaluation
 
-A dedicated slide documents the Bob agentic skill that automates the evaluation workflow:
+The dedicated `business-term-evaluation` skill automates the business-term workflow:
 
-- **Phase 0** — Locates the artifact and determines DRAFT vs PUBLISHED status.
+- **Phase 0** — Locates the business term and determines DRAFT vs PUBLISHED status.
 - **Phase 1** — Wording quality check (clarity, jargon detection, improvement suggestions).
-- **Phase 2** — Ontology check (category fit, clash detection against existing artifacts).
-- **Phase 3** — Consolidated evaluation report with approve / reject / change guidance.
+- **Phase 2** — Ontology check (category fit and clash detection against existing business terms).
+- **Phase 3** — Consolidated business-term evaluation report with approve / reject / change guidance.
 
-**MCP tools used by the skill (business terms):**
+**MCP tools used by the business-term skill:**
 
 | Tool | Purpose |
 |------|---------|
@@ -44,9 +44,9 @@ A dedicated slide documents the Bob agentic skill that automates the evaluation 
 | `list_business_terms_by_category` | **Two calls:** (1) with description → BM25-ranks top 5 semantically similar terms (semantic clash detection); (2) without description → returns all terms in the category for exact/near-name matching. |
 | `search_governance_artifacts` | Confirms published status; fallback when the category cannot be resolved for a business term. |
 
-**Activation phrases:** *"Should I approve this business term?"*, *"Evaluate [artifact name]"*, *"Review [artifact] for approval"*, *"What do I need to know about [artifact]?"*
+**Activation phrases:** *"Should I approve this business term?"*, *"Evaluate [term name]"*, *"Review [term] for approval"*, *"What do I need to know about [term]?"*
 
-The skill definition lives in [`SKILL.md`](SKILL.md).
+The skill definition lives in [`business-term-evaluation-skill.md`](business-term-evaluation-skill.md).
 
 ---
 
@@ -62,6 +62,8 @@ Data classes classify data by column name and format (e.g. `Global Location Numb
 | 4 | **Sensitivity & PII Likelihood** | Rate PII risk as High / Medium / Low. Document in the description — IKC has no dedicated PII marker field yet. |
 
 A **summary slide** ("Four Checks at a Glance — Data Classes") closes this section and lists known limitations (columnar scope only, no dedicated PII marker, Java/JS type rules deferred).
+
+The separate `data-class-evaluation` skill uses seven phases: status determination, description clarity, global uniqueness, column-scope fingerprint, value-level data-quality readiness, sensitivity/likely PII exposure, and a consolidated report. It uses `list_draft_artifacts`, `get_artifact_details`, and `search_governance_artifacts`; it does not use category-scoped business-term tooling. Its definition lives in [`data-class-evaluation.md`](data-class-evaluation.md).
 
 ---
 
@@ -84,7 +86,8 @@ A five-phase playbook for reducing 1,000+ overlapping legacy terms to a clean, c
 ```
 .
 ├── index.html                          # Main reveal.js presentation (all slides)
-├── SKILL.md                            # Bob skill — Glossary Artifact Evaluation
+├── business-term-evaluation-skill.md   # Bob skill — business-term evaluation
+├── data-class-evaluation.md            # Bob skill — column-oriented data-class evaluation
 ├── docs/
 │   └── Large_Scale_Metadata_Migration.md  # Standalone migration playbook (prose)
 └── README.md                           # This file
@@ -121,5 +124,5 @@ When working on this repository, keep the following in mind:
 
 - **Presentation source** is entirely in [`index.html`](index.html) — a single-file reveal.js deck with inline CSS and no build pipeline.
 - **Slide sections** are identified by `id` attributes (`#wording`, `#ontology`, `#data`, `#agentic-skill`, `#dc-title`, `#dc-uniqueness`, `#dc-fingerprint`, `#dc-quality`, `#dc-sensitivity`, `#dc-summary`, `#dc-agentic-skill`, `#migration-title`, `#migration-phase1` … `#migration-phase5`).
-- **The agentic skill** ([`SKILL.md`](SKILL.md)) is the runtime instruction set that Bob loads when a data steward asks for artifact evaluation. Changes to the skill's phases or tool list should be reflected in both the *Agentic Skill* slide (`#agentic-skill`) and the *Data Class Agentic Skill* slide (`#dc-agentic-skill`), and vice versa.
+- **Two distinct agentic skills** drive evaluation: [`business-term-evaluation-skill.md`](business-term-evaluation-skill.md) covers business-term wording and ontology checks, while [`data-class-evaluation.md`](data-class-evaluation.md) covers global uniqueness and column-oriented data-class evaluation. Keep the corresponding *Agentic Skill* slides (`#agentic-skill` and `#dc-agentic-skill`) aligned with their respective skill definitions.
 - **README maintenance:** Update this file whenever slides are added or removed, check criteria change, the skill phases change, or the migration playbook is revised.
